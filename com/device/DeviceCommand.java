@@ -20,15 +20,16 @@ public class DeviceCommand{
     DatagramSocket mSocket;
     public DeviceCommand(int port){
         try{
-            DatagramSocket mSocket = new DatagramSocket(port);
+            mSocket = new DatagramSocket(port);
             System.out.println(TAG+"localport:"+mSocket.getLocalPort());
-            mPort = datagramSocket.getLocalPort(); 
+            mPort = mSocket.getLocalPort(); 
         }catch(Exception e){
             e.printStackTrace();
         }
     }
     public void SendNoReply(String command, String ip, int port){
-        try{
+        System.out.println(TAG+"sendnoreply commad:"+command); 
+	try{
             String data = command;
             DatagramPacket packet = new DatagramPacket(data.getBytes(), data.getBytes().length, InetAddress.getByName(ip), port);
             mSocket.send(packet);
@@ -36,6 +37,7 @@ public class DeviceCommand{
             e.printStackTrace();
         }
     }
+    @Deprecated
     public void Send(String command, String ip, int port){
         try{
 	    do{
@@ -59,12 +61,12 @@ public class DeviceCommand{
         } 
             System.out.println(TAG+"recvdata:"+ new String(buf,0,datagramPacket.getLength()));                                         
             System.out.println(TAG+"ip:"+datagramPacket.getAddress().getHostAddress()+" port:"+datagramPacket.getPort()); 
-	    //ReturnCommand(CommandAccept, datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort());
+	    // ReturnCommand(CommandAccept, datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort());
 	    char[] command=new char[64];
             List<String> params = new ArrayList<String>();
 	    int paramnum = AnalysisCommand(new String(buf,0,datagramPacket.getLength()), command, params);
         return new CommandParams(command, paramnum, params, datagramPacket.getAddress().getHostAddress(),
-			             datagramPacket.getPort(), mSocket.getLocalAddress().toString(), port);
+			             datagramPacket.getPort(), mSocket.getLocalAddress().toString(), mPort);
     }
     private boolean WaitCommandReturn(){
         byte[] buf = new byte[1024];
@@ -104,6 +106,9 @@ public class DeviceCommand{
         mSocket.close();
     }
     //=================================================//
+    public DeviceCommand(){
+	
+    }
     public void SendCommandNoReply(String command, String ip, int port, int sourceport){
         try{
             DatagramSocket datagramSocket = new DatagramSocket(sourceport);
@@ -123,7 +128,8 @@ public class DeviceCommand{
         }
     }
 	public void SendCommand(String command, String ip, int port, int sourceport){
-        try{
+        System.out.println(TAG+"send1 commad:"+command);
+	try{
 	    do{
             DatagramSocket datagramSocket = new DatagramSocket(sourceport);
             if(SendCommandPort==0){
@@ -143,6 +149,7 @@ public class DeviceCommand{
         }
 	}
     public void SendCommand(String command, String ip, int port){
+	System.out.println(TAG+"send2 commad:"+command);
         try{
             int localport;
             do{

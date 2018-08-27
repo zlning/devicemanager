@@ -2,41 +2,50 @@ package com.device;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 
 public class DeviceServerManager{
     private static DeviceConsole mDConsole;
     private DeviceServerManagerDemo ServerDemo;
-	private int DeviceServerManagerDemoPort=9095;
+    private int DeviceServerManagerDemoPort=9095;
 
-	private List<DeviceServer> DeviceServerList;	
-	private DeviceCommand mDeviceCommand;
+    private List<DeviceServer> DeviceServerList;	
+    private DeviceCommand mDeviceCommand;
     
-	private static final String TAG = "[DeviceServerManager] ";
-	private static final String CREATE_COMMAND = "CreateNewDeviceServer";//CREATE_COMMAND name id
+    private static final String TAG = "[DeviceServerManager] ";
+    private static final String CREATE_COMMAND = "CreateNewDeviceServer";//CREATE_COMMAND name id
     private static final String SHOW_COMMAND = "ShowDevices";//SHOW_COMMAND 
     private static final String THISISSERVER_COMMAND = "ThisIsServer";//
     private static final String WHEREIS_COMMAND = "AskDeviceServerAddress";//WHEREIS_COMMAND name id
     private static final String SENDNEWADDRESS_COMMAND = "SendNewAddress";
-	public static void main(String[] args){
+    public static void main(String[] args){
 		//DC = new DeviceConsole();
         DeviceServerManager iDeviceServerManager= new DeviceServerManager();
-		iDeviceServerManager.mDConsole.start();
-		iDeviceServerManager.ServerDemo.start();
-		while(true){
-			Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
-            while (it.hasNext()) {
-                DeviceServer next = it.next();
-				if(next.getState() == Thread.State.NEW){
-					next.start();
-				}
-            }
+	    iDeviceServerManager.mDConsole.start();
+	    iDeviceServerManager.ServerDemo.start();
+	    while(true){
+                synchronized(iDeviceServerManager.DeviceServerList) {
+		    Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
+                    while (it.hasNext()) {
+                    DeviceServer next = it.next();
+			if(next.getState() == Thread.State.NEW){
+			    System.out.println(TAG+"next start");
+			    next.start();
+			}
+                    }
 		}
+		try{
+	            //Thread.sleep(1000);
+		}catch(Exception e){
+		    e.printStackTrace();
+		}
+	    }
 	}
 	public DeviceServerManager(){
-		DeviceServerList = new ArrayList<DeviceServer>();
+		DeviceServerList = Collections.synchronizedList(new ArrayList<DeviceServer>());
 		mDConsole = new DeviceConsole();
-		mDeviceCommand = new DeviceCommand();
-        ServerDemo = new DeviceServerManagerDemo();
+		mDeviceCommand = new DeviceCommand(DeviceServerManagerDemoPort);
+                ServerDemo = new DeviceServerManagerDemo();
 		//DeviceServerManagerDemoSocket = new DatagramSocket(DeviceServerManagerDemoPort);
 	}
 	public void ShowDevices(){
@@ -55,7 +64,7 @@ public class DeviceServerManager{
                 DeviceServer dest = it1.next();
 				while (it1.hasNext()) {
                     if(dest.ClientId.equals(destId)){
-					    source.GetNewClientAddress(requestport, dest.ClientIp, dest.ClientPort);
+					    source.HoleNewClientAddress(requestport, dest);
 						break;
 					}
 				}
@@ -63,8 +72,9 @@ public class DeviceServerManager{
 			}
         }
     }
-	private void AddNewDevice(String name, String Id, String Ip, int Port){
-		Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                          
+    private void AddNewDevice(String name, String Id, String Ip, int Port){
+        synchronized(DeviceServerList) {
+	Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                          
         while (it.hasNext()) {                                                                                                            
             DeviceServer next = it.next();
 			if(next.ClientId.equals(Id)){
@@ -72,11 +82,13 @@ public class DeviceServerManager{
 				return;
 			}
 		}
-		DeviceServerList.add(new DeviceServer(name, Id));
 	}
+        DeviceServerList.add(new DeviceServer(name, Id));
+    }
     private void AskDeviceServerAddress(String name, String Id, String sourceip, int sourceport){
-        Iterator<DeviceServer> it = DeviceServerList.iterator();
-        DeviceServer next=null;        
+        DeviceServer next=null;
+        synchronized(DeviceServerList) {
+	Iterator<DeviceServer> it = DeviceServerList.iterator();        
         while (it.hasNext()) {                                                                                                            
             next = it.next();
 			if(next.ClientId.equals(Id)){
@@ -87,10 +99,11 @@ public class DeviceServerManager{
             System.out.println(TAG+"Id:"+Id+"is not exist");
 			return;
         }
+        }
         System.out.println(TAG+new String(THISISSERVER_COMMAND+" "+next.getServerPort()));
-        mDeviceCommand.SendCommand(new String(THISISSERVER_COMMAND+" "+next.getServerPort()), sourceip, sourceport, DeviceServerManagerDemoPort);
+        mDeviceCommand.SendNoReply(new String(THISISSERVER_COMMAND+" "+next.getServerPort()), sourceip, sourceport);
     }
-    private void SendOtherClientAddress(String destId, String ip, int port){
+    /*private void SendOtherClientAddress(String destId, String ip, int port){
         Iterator<DeviceServer> it = DeviceServerList.iterator();
         DeviceServer next=null;        
         while (it.hasNext()) {                                                                                                            
@@ -104,7 +117,7 @@ public class DeviceServerManager{
 			return;
         }
         next.SendOtherClientAddress(ip, port);
-    }
+    }*/
 	private void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
 		if(s.command.equals(CREATE_COMMAND) && s.paramsnum == 2){
@@ -114,7 +127,7 @@ public class DeviceServerManager{
         }else if(s.command.equals(WHEREIS_COMMAND) && s.paramsnum == 2){
             AskDeviceServerAddress(s.params.get(0), s.params.get(1), s.sourceip, s.sourceport);
         }else if(s.command.equals(SENDNEWADDRESS_COMMAND) && s.paramsnum == 3){
-            SendOtherClientAddress(s.params.get(0), s.params.get(1), Integer.parseInt(s.params.get(2)));
+            //SendOtherClientAddress(s.params.get(0), s.params.get(1), Integer.parseInt(s.params.get(2)));
         }else{                                                                                                                            
             System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");                                                  
         } 
@@ -123,7 +136,7 @@ public class DeviceServerManager{
 		@Override
         	public void run(){
              while(true){
-			    ExeCommand(mDeviceCommand.RecvCommand(DeviceServerManagerDemoPort));
+			    ExeCommand(mDeviceCommand.RecvCommand());
             }
 		}
 	}	

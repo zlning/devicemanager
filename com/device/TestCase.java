@@ -5,6 +5,10 @@ import java.util.Scanner;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.Iterator;
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+import java.util.Enumeration;
 public class TestCase{
     private static int DeviceServerManagerDemoPort=9095;
     private static final String CREATE_COMMAND = "CreateNewDeviceServer";
@@ -47,17 +51,83 @@ public class TestCase{
         //System.out.println("test:"+new String(test)+" end");
         //==========================/
         Map<String,String> map = System.getenv();  
+//	System.out.println(new String(System.getenv()));
+Map m = System.getenv();
+
+              for ( Iterator it = m.keySet().iterator(); it.hasNext(); )
+
+              {
+
+                     String key = (String ) it.next();
+
+                     String value = (String )  m.get(key);
+
+                     System.out.println(key +":" +value);
+
+              }
         System.out.println(map.get("USERNAME"));
                 System.out.println(map.get("COMPUTERNAME"));
-        System.out.println(map.get("USERDOMAIN"));
+
+
+ 
+        try {
+            Enumeration<NetworkInterface> enumeration = NetworkInterface.getNetworkInterfaces();
+            while (enumeration.hasMoreElements()) {
+                StringBuffer stringBuffer = new StringBuffer();
+                NetworkInterface networkInterface = enumeration.nextElement();
+                if (networkInterface != null) {
+                    byte[] bytes = networkInterface.getHardwareAddress();
+                    if (bytes != null) {
+                        for (int i = 0; i < bytes.length; i++) {
+                            if (i != 0) {
+                                stringBuffer.append("-");
+                            }
+                            int tmp = bytes[i] & 0xff; // 字节转换为整数
+                            String str = Integer.toHexString(tmp);
+                            if (str.length() == 1) {
+                                stringBuffer.append("0" + str);
+                            } else {
+                                stringBuffer.append(str);
+                            }
+                        }
+                        String mac = stringBuffer.toString().toUpperCase();  
+                        System.out.println(mac);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try{
+		System.out.println(getMACAddress());
+	}catch(Exception e){
+            e.printStackTrace();
+	}
     //=========================test DeviceSerManager=========================
-    /*DeviceCommand command = new DeviceCommand();
-    command.SendCommand(CREATE_COMMAND+" machineA LC2343410","192.168.1.201",DeviceServerManagerDemoPort,9099);
-    command.SendCommand(WHEREIS_COMMAND+" machineA LC2343410","192.168.1.201",DeviceServerManagerDemoPort,9099);
+   // DeviceCommand command = new DeviceCommand(0);
+    //command.SendNoReply(CREATE_COMMAND+" machineA LC2343410","10.180.89.205",DeviceServerManagerDemoPort);
+    /*command.SendCommand(WHEREIS_COMMAND+" machineA LC2343410","192.168.1.201",DeviceServerManagerDemoPort,9099);
     DeviceCommand.CommandParams s = command.RecvCommand(9099);
     System.out.println("sourceip:"+s.sourceip+" sourceport:"+Integer.parseInt(s.params.get(0)));
     command.SendCommand(THISISCLIENT_COMMAND,s.sourceip, Integer.parseInt(s.params.get(0)),9098);
     command.SendCommand(SHOW_COMMAND,"192.168.1.201",DeviceServerManagerDemoPort,9099);
     command.SendCommand(SENDNEWADDRESS_COMMAND,"192.168.1.201",DeviceServerManagerDemoPort,9099);*/
     }
+private static String getMACAddress() throws Exception {
+    InetAddress ia = InetAddress.getLocalHost();
+    byte[] mac = NetworkInterface.getByInetAddress(ia).getHardwareAddress();
+
+    StringBuffer sb = new StringBuffer();
+
+    for (int i = 0; i < mac.length; i++) {
+        if (i != 0) {
+            sb.append("-");
+        }
+        String s = Integer.toHexString(mac[i] & 0xFF);
+        sb.append(s.length() == 1 ? 0 + s : s);
+    }
+
+    return sb.toString().toUpperCase().replaceAll("-", "");
+}
 }
