@@ -72,6 +72,6 @@ public class DeviceServer extends Thread{
         mOtherDeviceServer = dest;
     }
     public void SendOtherClientAddress(String otherip, int otherport){
-        mDeviceCommand.SendNoReply(new String(SENDOTHERADDRESS_COMMAND+" "+otherport+" "+otherport), ClientIp, ClientPort);
+        mDeviceCommand.SendNoReply(new String(SENDOTHERADDRESS_COMMAND+" "+otherip+" "+otherport), ClientIp, ClientPort);
     }
 }

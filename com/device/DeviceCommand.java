@@ -8,11 +8,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class DeviceCommand{
-	//public List<String> mCommandParams;
-	//public String mCommand
+    //public List<String> mCommandParams;
+    //public String mCommand
     private static final String TAG = "[DeviceCommand] ";
-	public static final String CommandAccept = "ACCEPT_COMMAND";
-	private static final int WaitCommandTimeout = 2000;
+    public static final String CommandAccept = "ACCEPT_COMMAND";
+    private static final int WaitCommandTimeout = 2000;
     private int RecvCommandPort;
     private int SendCommandPort;
     //=====================new interface===========================//

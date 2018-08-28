@@ -20,9 +20,10 @@ public class DeviceServerManager{
     private static final String SENDNEWADDRESS_COMMAND = "SendNewAddress";
     public static void main(String[] args){
 		//DC = new DeviceConsole();
-        DeviceServerManager iDeviceServerManager= new DeviceServerManager();
+    DeviceServerManager iDeviceServerManager= new DeviceServerManager();
 	    iDeviceServerManager.mDConsole.start();
 	    iDeviceServerManager.ServerDemo.start();
+	    int test=0;
 	    while(true){
                 synchronized(iDeviceServerManager.DeviceServerList) {
 		    Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
@@ -35,41 +36,71 @@ public class DeviceServerManager{
                     }
 		}
 		try{
-	            //Thread.sleep(1000);
+	            Thread.sleep(1000);
 		}catch(Exception e){
 		    e.printStackTrace();
 		}
+                //TEST hole
+                if(test ==0){
+                    test=iDeviceServerManager.testhole(0,"hostA","hostB");            
+                }
 	    }
-	}
-	public DeviceServerManager(){
+    }
+    public DeviceServerManager(){
 		DeviceServerList = Collections.synchronizedList(new ArrayList<DeviceServer>());
 		mDConsole = new DeviceConsole();
 		mDeviceCommand = new DeviceCommand(DeviceServerManagerDemoPort);
                 ServerDemo = new DeviceServerManagerDemo();
 		//DeviceServerManagerDemoSocket = new DatagramSocket(DeviceServerManagerDemoPort);
-	}
-	public void ShowDevices(){
+    }
+    public void ShowDevices(){
 		Iterator<DeviceServer> it = DeviceServerList.iterator();	
 		while (it.hasNext()) {
 			System.out.println(TAG+it.next());
 		}
-	}
+    }
+    public int testhole(int requestport, String sourceId, String destId){
+        System.out.println(TAG+"========StartHoleClientNat=====");                                                                                
+        DeviceServer source=null;                                                                                                                 
+        DeviceServer dest=null;                                                                                                                   
+        source = findDeviceServerbyname(sourceId);                                                                                                  
+        dest = findDeviceServerbyname(destId);                                                                                                      
+        if(source != null && dest != null && dest.ClientPort!=0 && source.ClientPort!=0){                                                                                                       
+           source.HoleNewClientAddress(requestport, dest);
+           return 1;                                                                                        
+        }
+        return 0;
+    }
+    private DeviceServer findDeviceServerbyname(String name){                                                                                         
+        DeviceServer next=null;                                                                                                                   
+        synchronized(DeviceServerList) {                                                                                                          
+        Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                                  
+        while (it.hasNext()) {                                                                                                                    
+            next = it.next();                                                                                                    
+            if(next.ClientName.equals(name)){                                                                                                         
+                break;                                                                                                                            
+            }                                                                                                                                     
+        }
+        if(!it.hasNext() && next != null){
+            if(!next.ClientName.equals(name)){                                                                           
+                System.out.println(TAG+"name:"+name+"is not exist");                                                                                      
+                return null;
+            }else{
+                return next; 
+            }                                                                                                                          
+        }
+        }
+        return next;                                                                                                                      
+    }
     public void StartHoleClientNat(int requestport, String sourceId, String destId){
         //GetNewClientAddress(requestport, String destip, int destport);
-        Iterator<DeviceServer> it = DeviceServerList.iterator();
-        while (it.hasNext()) {
-			DeviceServer source = it.next();
-            if(source.ClientId.equals(sourceId)){
-				Iterator<DeviceServer> it1 = DeviceServerList.iterator(); 
-                DeviceServer dest = it1.next();
-				while (it1.hasNext()) {
-                    if(dest.ClientId.equals(destId)){
-					    source.HoleNewClientAddress(requestport, dest);
-						break;
-					}
-				}
-				break;
-			}
+        System.out.println(TAG+"========StartHoleClientNat=====");
+        DeviceServer source=null;
+        DeviceServer dest=null;
+        source = findDeviceServerbyId(sourceId);
+        dest = findDeviceServerbyId(destId);
+        if(source != null && dest != null){
+           source.HoleNewClientAddress(requestport, dest);
         }
     }
     private void AddNewDevice(String name, String Id, String Ip, int Port){
@@ -77,13 +108,34 @@ public class DeviceServerManager{
 	Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                          
         while (it.hasNext()) {                                                                                                            
             DeviceServer next = it.next();
-			if(next.ClientId.equals(Id)){
-                System.out.println(TAG+"Id:"+Id+"has exist");
+                if(next.ClientId.equals(Id)){
+                     System.out.println(TAG+"Id:"+Id+"has exist");
 				return;
-			}
-		}
+                }
+        }
 	}
         DeviceServerList.add(new DeviceServer(name, Id));
+    }
+    private DeviceServer findDeviceServerbyId(String Id){
+        DeviceServer next=null;
+        synchronized(DeviceServerList) {                                                                                                          
+        Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                                  
+        while (it.hasNext()) {                                                                                                                    
+            next = it.next();                                                                                                                     
+            if(next.ClientId.equals(Id)){
+                break;                                                                                                                            
+            }
+        }
+        if(!it.hasNext() && next != null){                                                                           
+            if(!next.ClientId.equals(Id) ){
+                System.out.println(TAG+"Id:"+Id+"is not exist");                                                                                      
+                return null;
+            }else{
+                return next;
+            }
+        }
+        }
+        return next;
     }
     private void AskDeviceServerAddress(String name, String Id, String sourceip, int sourceport){
         DeviceServer next=null;
@@ -91,13 +143,13 @@ public class DeviceServerManager{
 	Iterator<DeviceServer> it = DeviceServerList.iterator();        
         while (it.hasNext()) {                                                                                                            
             next = it.next();
-			if(next.ClientId.equals(Id)){
+            if(next.ClientId.equals(Id)){
                 break;
             }
-		}
+        }
         if(!it.hasNext() && !next.ClientId.equals(Id) && next != null){
             System.out.println(TAG+"Id:"+Id+"is not exist");
-			return;
+            return;
         }
         }
         System.out.println(TAG+new String(THISISSERVER_COMMAND+" "+next.getServerPort()));

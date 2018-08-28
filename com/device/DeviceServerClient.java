@@ -105,8 +105,16 @@ public class DeviceServerClient extends Thread{
     }
     private void GetNewClientAddress(int requestport, String destip, int destport){
          mHoleDeviceCommand = new DeviceCommand(requestport);
-         mHoleDeviceCommand.SendNoReply(ANEWADDRESS_COMMAND, ServertIp, ServerPort);
+         mHoleDeviceCommand.SendNoReply(SENDOTHERADDRESS_COMMAND, ServertIp, ServerPort);
          mHoleDeviceCommand.SendNoReply(ANEWADDRESS_COMMAND, destip, destport);
+    new Thread(new Runnable() {
+  
+    @Override
+    public void run() {
+        // TODO Auto-generated method stub
+        ExeCommand(mHoleDeviceCommand.RecvCommand());
+    }
+    }).start();
     }
     private void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
