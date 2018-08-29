@@ -6,6 +6,7 @@ import java.util.StringTokenizer;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.ArrayList;
+import java.io.File;
 
 public class DeviceCommand{
     //public List<String> mCommandParams;
@@ -13,16 +14,22 @@ public class DeviceCommand{
     private static final String TAG = "[DeviceCommand] ";
     public static final String CommandAccept = "ACCEPT_COMMAND";
     private static final int WaitCommandTimeout = 2000;
+    private String mPath = Class.class.getClass().getResource("/").getPath()+"key";
     private int RecvCommandPort;
     private int SendCommandPort;
     //=====================new interface===========================//
     public int mPort;
     DatagramSocket mSocket;
+    private String mADSkey;
     public DeviceCommand(int port){
         try{
             mSocket = new DatagramSocket(port);
             System.out.println(TAG+"localport:"+mSocket.getLocalPort());
-            mPort = mSocket.getLocalPort(); 
+            mPort = mSocket.getLocalPort();
+            mADSkey = "c4BvSO6cs43fR0Rd";
+            System.out.println(TAG+"mPath:"+mPath);
+            mADSkey = AES.getFileMD5String(new File(mPath)).substring(3,19);
+            System.out.println(TAG+"mADSkey:"+mADSkey);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -30,7 +37,7 @@ public class DeviceCommand{
     public void SendNoReply(String command, String ip, int port){
         System.out.println(TAG+"sendnoreply commad:"+command); 
 	try{
-            String data = command;
+            String data = AES.Encrypt(command,mADSkey);
             DatagramPacket packet = new DatagramPacket(data.getBytes(), data.getBytes().length, InetAddress.getByName(ip), port);
             mSocket.send(packet);
         }catch(Exception e){
@@ -49,22 +56,32 @@ public class DeviceCommand{
             e.printStackTrace();
         }
     }
+    public CommandParams AnalysisCommand(String s){
+        
+        char[] command=new char[64];
+        List<String> params = new ArrayList<String>();
+        int paramnum = AnalysisCommand(s, command, params);
+        return new CommandParams(command, paramnum, params, null, 0, null, 0); 
+    }
     public CommandParams RecvCommand(){
         DatagramPacket datagramPacket=null;
+        String recdata=null;
         byte[] buf = new byte[1024];
         try{
             datagramPacket = new DatagramPacket(buf, buf.length);
             mSocket.setSoTimeout(0);
             mSocket.receive(datagramPacket);
+            recdata = AES.Decrypt(new String(buf,0,datagramPacket.getLength()),mADSkey);
         }catch(Exception e){
             e.printStackTrace();
         } 
-            System.out.println(TAG+"recvdata:"+ new String(buf,0,datagramPacket.getLength()));                                         
+            System.out.println(TAG+"before decorder"+new String(buf,0,datagramPacket.getLength()));
+            System.out.println(TAG+"recvdata:"+ recdata);                                         
             System.out.println(TAG+"ip:"+datagramPacket.getAddress().getHostAddress()+" port:"+datagramPacket.getPort()); 
 	    // ReturnCommand(CommandAccept, datagramPacket.getAddress().getHostAddress(), datagramPacket.getPort());
 	    char[] command=new char[64];
             List<String> params = new ArrayList<String>();
-	    int paramnum = AnalysisCommand(new String(buf,0,datagramPacket.getLength()), command, params);
+	    int paramnum = AnalysisCommand(recdata, command, params);
         return new CommandParams(command, paramnum, params, datagramPacket.getAddress().getHostAddress(),
 			             datagramPacket.getPort(), mSocket.getLocalAddress().toString(), mPort);
     }
@@ -165,7 +182,7 @@ public class DeviceCommand{
             e.printStackTrace();
         }  
 	}
-	public CommandParams RecvCommand(int port){
+     public CommandParams RecvCommand(int port){
         DatagramPacket datagramPacket=null;
         byte[] buf = new byte[1024];
 	    String localip=null;
@@ -200,7 +217,7 @@ public class DeviceCommand{
     public int getSendCommandPort(){
         return SendCommandPort;
     }
-	private int AnalysisCommand(String s, char[] command, List<String>params){
+    private int AnalysisCommand(String s, char[] command, List<String>params){
 		StringTokenizer st = new StringTokenizer(s);
 		String tmpcommand = st.nextToken();
 		System.arraycopy(tmpcommand.toCharArray(), 0, command ,0 , tmpcommand.length());

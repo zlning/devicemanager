@@ -10,7 +10,7 @@ public class DeviceServerManager{
     private int DeviceServerManagerDemoPort=9095;
 
     private List<DeviceServer> DeviceServerList;	
-    private DeviceCommand mDeviceCommand;
+    public DeviceCommand mDeviceCommand;
     
     private static final String TAG = "[DeviceServerManager] ";
     private static final String CREATE_COMMAND = "CreateNewDeviceServer";//CREATE_COMMAND name id
@@ -18,12 +18,14 @@ public class DeviceServerManager{
     private static final String THISISSERVER_COMMAND = "ThisIsServer";//
     private static final String WHEREIS_COMMAND = "AskDeviceServerAddress";//WHEREIS_COMMAND name id
     private static final String SENDNEWADDRESS_COMMAND = "SendNewAddress";
+    private static final String STARTHOLENAT_COMMAND = "StartHoleNat";
     public static void main(String[] args){
-		//DC = new DeviceConsole();
-    DeviceServerManager iDeviceServerManager= new DeviceServerManager();
-	    iDeviceServerManager.mDConsole.start();
-	    iDeviceServerManager.ServerDemo.start();
-	    int test=0;
+        //DC = new DeviceConsole();
+        DeviceServerManager iDeviceServerManager= new DeviceServerManager();
+        iDeviceServerManager.mDConsole.setDeviceServerManager(iDeviceServerManager);
+        iDeviceServerManager.mDConsole.start();
+        iDeviceServerManager.ServerDemo.start();
+	    //int test=0;
 	    while(true){
                 synchronized(iDeviceServerManager.DeviceServerList) {
 		    Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
@@ -41,9 +43,9 @@ public class DeviceServerManager{
 		    e.printStackTrace();
 		}
                 //TEST hole
-                if(test ==0){
-                    test=iDeviceServerManager.testhole(0,"hostA","hostB");            
-                }
+                //if(test ==0){
+                //    test=iDeviceServerManager.testhole(22,"hostA","hostB");            
+                //}
 	    }
     }
     public DeviceServerManager(){
@@ -59,12 +61,12 @@ public class DeviceServerManager{
 			System.out.println(TAG+it.next());
 		}
     }
-    public int testhole(int requestport, String sourceId, String destId){
+    public int StartHoleClientNatbyName(int requestport, String sourcename, String destname){
         System.out.println(TAG+"========StartHoleClientNat=====");                                                                                
         DeviceServer source=null;                                                                                                                 
         DeviceServer dest=null;                                                                                                                   
-        source = findDeviceServerbyname(sourceId);                                                                                                  
-        dest = findDeviceServerbyname(destId);                                                                                                      
+        source = findDeviceServerbyname(sourcename);                                                                                                  
+        dest = findDeviceServerbyname(destname);                                                                                                      
         if(source != null && dest != null && dest.ClientPort!=0 && source.ClientPort!=0){                                                                                                       
            source.HoleNewClientAddress(requestport, dest);
            return 1;                                                                                        
@@ -170,26 +172,28 @@ public class DeviceServerManager{
         }
         next.SendOtherClientAddress(ip, port);
     }*/
-	private void ExeCommand(DeviceCommand.CommandParams s){
+    public void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
-		if(s.command.equals(CREATE_COMMAND) && s.paramsnum == 2){
-			AddNewDevice(s.params.get(0), s.params.get(1), s.sourceip, s.sourceport);
-		}else if(s.command.equals(SHOW_COMMAND) && s.paramsnum == 0){
+        if(s.command.equals(CREATE_COMMAND) && s.paramsnum == 2){
+            AddNewDevice(s.params.get(0), s.params.get(1), s.sourceip, s.sourceport);
+        }else if(s.command.equals(SHOW_COMMAND) && s.paramsnum == 0){
             ShowDevices();
         }else if(s.command.equals(WHEREIS_COMMAND) && s.paramsnum == 2){
             AskDeviceServerAddress(s.params.get(0), s.params.get(1), s.sourceip, s.sourceport);
         }else if(s.command.equals(SENDNEWADDRESS_COMMAND) && s.paramsnum == 3){
             //SendOtherClientAddress(s.params.get(0), s.params.get(1), Integer.parseInt(s.params.get(2)));
-        }else{                                                                                                                            
-            System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");                                                  
-        } 
-	}
-	private class DeviceServerManagerDemo extends Thread{
-		@Override
-        	public void run(){
-             while(true){
-			    ExeCommand(mDeviceCommand.RecvCommand());
-            }
-		}
-	}	
+        }else if(s.command.equals(STARTHOLENAT_COMMAND) && s.paramsnum == 3){
+            StartHoleClientNatbyName(Integer.parseInt(s.params.get(0)), s.params.get(1), s.params.get(2));
+        }else{
+            System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");
+        }
+    }
+    private class DeviceServerManagerDemo extends Thread{
+       @Override
+       public void run(){
+            while(true){
+                ExeCommand(mDeviceCommand.RecvCommand());
+           }
+       }
+    }	
 }

@@ -16,10 +16,13 @@ public class DeviceConsole extends Thread{
     	private BufferedReader br = null;
 	private String param1 = null;
 	private String param2 = null;
+        private DeviceServerManager mDeviceServerManager;
 	/*public DeviceConsole(){
         	
         }*/
-
+        public void setDeviceServerManager(DeviceServerManager m){
+                mDeviceServerManager=m;
+        }
 	@Override
 	public void run(){
 		try {
@@ -34,7 +37,10 @@ public class DeviceConsole extends Thread{
             			br = new BufferedReader(new InputStreamReader(ServerSock.getInputStream()));
             			while ((mcommond = br.readLine()) != null) {
 					System.out.println("===========command is comming========="+mcommond);
-                			execommond(mcommond);
+                			//execommond(mcommond);
+                                        if(mDeviceServerManager!=null){
+                                            mDeviceServerManager.ExeCommand(mDeviceServerManager.mDeviceCommand.AnalysisCommand(mcommond));
+                                        }
             			}
 			}
         	} catch (Exception e) {
