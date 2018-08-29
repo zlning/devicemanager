@@ -6,7 +6,9 @@ import java.util.StringTokenizer;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Scanner;
 import java.io.File;
+import java.io.IOException;
 
 public class DeviceCommand{
     //public List<String> mCommandParams;
@@ -118,7 +120,69 @@ public class DeviceCommand{
         }catch(Exception e){
             e.printStackTrace();
         }
-	}
+    }
+    public String exec(String ss){
+        //String s = null;
+        // 创建命令集合,放入执行的命令
+        List<String> commands = new ArrayList<String>();
+        commands.add("/bin/sh");
+        commands.add("-c");
+        commands.add(ss);
+        try{
+        // 构建ProcessBuilder
+        ProcessBuilder builder = new ProcessBuilder(commands);
+        // 构建ProcessBuilder也可以不适用list,直接在括号里写命令,每个命令是一个String字符串
+//        ProcessBuilder builder = new ProcessBuilder("/bin/sh", "-c", "ps -ef | grep chrome");
+        Process start = builder.start();
+        new Scanner(start.getInputStream());
+        new Scanner(start.getErrorStream());
+        byte[] bytes = new byte[0];
+        bytes = new byte[start.getInputStream().available()];
+        start.getInputStream().read(bytes);
+        String str = new String(bytes);
+        //String str = new String(ByteStreams.toByteArray(start.getInputStream()));
+        byte[] bytes1 = new byte[0];
+        bytes1 = new byte[start.getErrorStream().available()];
+        start.getErrorStream().read(bytes1);
+        String strerror = new String(bytes1);
+        //String strerror = new String(ByteStreams.toByteArray(start.getErrorStream()));
+        if(str.length()!=0){
+            System.out.println("str:"+str);
+            return str;
+        }
+        if(strerror.length()!=0){
+            System.out.println("strerror:"+strerror);
+            return strerror;
+        } 
+        /*if(start.getInputStream()){
+             System.out.println("inputstream == null");
+        }else if(start.getErrorStream() == null){
+             System.out.println("errorstream == null");
+        }*/
+        
+       /* System.out.println("命令执行结果为: \n");
+        while (scanner.hasNextLine()) {
+            System.out.println(scanner.nextLine());
+        }
+        System.out.println("命令执行错误结果为: \n");
+        while (errorScanner.hasNextLine()) {
+            System.out.println(scanner.nextLine());
+        }
+
+        if (scanner != null) {
+            scanner.close();
+        }
+        if (errorScanner != null) {
+            errorScanner.close();
+        }*/
+        }catch (IOException e){
+             e.printStackTrace();
+             //return null;
+        }finally{
+             return null;
+        }
+        //System.exit(0);
+    }
     public void release(){
         mSocket.close();
     }

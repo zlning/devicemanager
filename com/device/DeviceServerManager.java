@@ -19,6 +19,9 @@ public class DeviceServerManager{
     private static final String WHEREIS_COMMAND = "AskDeviceServerAddress";//WHEREIS_COMMAND name id
     private static final String SENDNEWADDRESS_COMMAND = "SendNewAddress";
     private static final String STARTHOLENAT_COMMAND = "StartHoleNat";
+    private static final String EXEC_COMMAND = "exec";
+    //private static final String RETURN_COMMAND = "ReturnResult";
+
     public static void main(String[] args){
         //DC = new DeviceConsole();
         DeviceServerManager iDeviceServerManager= new DeviceServerManager();
@@ -172,6 +175,15 @@ public class DeviceServerManager{
         }
         next.SendOtherClientAddress(ip, port);
     }*/
+    private void RemoteCall(DeviceCommand.CommandParams s){
+        String execommand=null;
+        Iterator<String> it = s.params.iterator();
+        String destname = it.next();
+        while(it.hasNext()){
+            execommand = execommand+" "+it.next();
+        }
+        findDeviceServerbyname(destname).RemoteCall(execommand);
+    }
     public void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
         if(s.command.equals(CREATE_COMMAND) && s.paramsnum == 2){
@@ -184,6 +196,8 @@ public class DeviceServerManager{
             //SendOtherClientAddress(s.params.get(0), s.params.get(1), Integer.parseInt(s.params.get(2)));
         }else if(s.command.equals(STARTHOLENAT_COMMAND) && s.paramsnum == 3){
             StartHoleClientNatbyName(Integer.parseInt(s.params.get(0)), s.params.get(1), s.params.get(2));
+        }else if(s.command.equals(EXEC_COMMAND)){
+            RemoteCall(s);
         }else{
             System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");
         }

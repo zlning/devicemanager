@@ -1,7 +1,7 @@
 package com.device;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.util.Iterator;
 import java.net.InetAddress;
 public class DeviceServer extends Thread{
     private static final String TAG = "[DeviceServer] ";
@@ -19,6 +19,8 @@ public class DeviceServer extends Thread{
     private static final String  GETADDRESS_COMMAND = "GetNewClientAddress";
     private static final String  SENDOTHERADDRESS_COMMAND = "SendOtherClientAddress";
     private static final String ANEWADDRESS_COMMAND = "NewClientAddress";
+    private static final String EXEC_COMMAND = "exec";
+    private static final String RETURN_COMMAND = "ReturnResult";    
     private int SshPort = 22;
 	
     public DeviceServer(String name, String id, String ip, int port){
@@ -61,8 +63,9 @@ public class DeviceServer extends Thread{
             if(mOtherDeviceServer!=null){
                 mOtherDeviceServer.SendOtherClientAddress(s.sourceip, s.sourceport);
             }
-        }
-        else{                                                                                                                            
+        }else if(s.command.equals(RETURN_COMMAND)){
+            ShowResult(s);
+        }else{                                                                                                                            
             System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");                                                  
         } 
     }
@@ -73,5 +76,16 @@ public class DeviceServer extends Thread{
     }
     public void SendOtherClientAddress(String otherip, int otherport){
         mDeviceCommand.SendNoReply(new String(SENDOTHERADDRESS_COMMAND+" "+otherip+" "+otherport), ClientIp, ClientPort);
+    }
+    private void ShowResult(DeviceCommand.CommandParams s){
+        String result=null;
+        Iterator<String> it = s.params.iterator();
+        while(it.hasNext()){
+            result = result+it.next();
+        }
+        System.out.println(TAG+result);
+    }
+    public void RemoteCall(String s){
+        mDeviceCommand.SendNoReply(s, ClientIp, ClientPort); 
     }
 }

@@ -3,6 +3,7 @@ import java.util.Scanner;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Random;
+import java.util.Iterator;
 
 public class DeviceServerClient extends Thread{
     private static final String TAG = "[DeviceServerClient] ";
@@ -25,7 +26,9 @@ public class DeviceServerClient extends Thread{
     private static final String GETADDRESS_COMMAND = "GetNewClientAddress";
     private static final String ANEWADDRESS_COMMAND = "NewClientAddress";   
     private static final String  SENDOTHERADDRESS_COMMAND = "SendOtherClientAddress";
-
+    private static final String EXEC_COMMAND = "exec";
+    private static final String RETURN_COMMAND = "ReturnResult";
+    
     public DeviceServerClient(String name){
 	ClientName = name;
         mDeviceCommand = new DeviceCommand(0);
@@ -107,14 +110,22 @@ public class DeviceServerClient extends Thread{
          mHoleDeviceCommand = new DeviceCommand(requestport);
          mHoleDeviceCommand.SendNoReply(SENDOTHERADDRESS_COMMAND, ServertIp, ServerPort);
          mHoleDeviceCommand.SendNoReply(ANEWADDRESS_COMMAND, destip, destport);
-    new Thread(new Runnable() {
+    /*new Thread(new Runnable() {
   
     @Override
     public void run() {
         // TODO Auto-generated method stub
         ExeCommand(mHoleDeviceCommand.RecvCommand());
     }
-    }).start();
+    }).start();*/
+    }
+    private void ExecSendback(DeviceCommand.CommandParams s){
+        String execommand=null;
+        Iterator<String> it = s.params.iterator();
+        while(it.hasNext()){
+            execommand = execommand+" "+it.next();
+        }
+        mDeviceCommand.SendNoReply(RETURN_COMMAND+" "+mDeviceCommand.exec(execommand),ServertIp,ServerPort);
     }
     private void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
@@ -126,8 +137,16 @@ public class DeviceServerClient extends Thread{
             mDeviceCommand.SendNoReply(ANEWADDRESS_COMMAND, s.params.get(0), Integer.parseInt(s.params.get(1)));
         }else if(s.command.equals(ANEWADDRESS_COMMAND)&& s.paramsnum ==0){
             System.out.println(TAG+"hole success!! command:"+ANEWADDRESS_COMMAND+" sourceip:"+s.sourceip+" sourceport:"+s.sourceport);
-        }
-        else{   
+        }else if(s.command.equals(EXEC_COMMAND)){
+            //mDeviceCommand.exec();
+            //ExecSendback(s);
+            new Thread(new Runnable() {
+                 @Override
+                 public void run() {
+                      ExecSendback(s);
+                 }
+            }).start();
+        }else{   
             System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");                                                  
         }
     }
