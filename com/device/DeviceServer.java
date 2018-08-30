@@ -22,7 +22,7 @@ public class DeviceServer extends Thread{
     private static final String EXEC_COMMAND = "exec";
     private static final String RETURN_COMMAND = "ReturnResult";    
     private int SshPort = 22;
-	
+    
     public DeviceServer(String name, String id, String ip, int port){
         ClientName = name;
         ClientIp = ip;
@@ -41,13 +41,13 @@ public class DeviceServer extends Thread{
     public String toString(){
         return new String(ClientName+" "+ClientId+" "+ClientIp+" "+ClientPort+" "+ServerPort);
     }
-	@Override
+    @Override
     public void run(){
         System.out.println(TAG+"SN:"+ClientId+" starting");
-		while(true){
+        while(true){
             ExeCommand(mDeviceCommand.RecvCommand());
-		}
-	}
+        }
+    }
     public int getServerPort(){
         ServerPort = mDeviceCommand.mPort;
         return ServerPort;
@@ -86,6 +86,6 @@ public class DeviceServer extends Thread{
         System.out.println(TAG+result);
     }
     public void RemoteCall(String s){
-        mDeviceCommand.SendNoReply(s, ClientIp, ClientPort); 
+        mDeviceCommand.SendNoReply(EXEC_COMMAND+" "+s, ClientIp, ClientPort); 
     }
 }

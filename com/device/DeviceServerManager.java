@@ -9,7 +9,7 @@ public class DeviceServerManager{
     private DeviceServerManagerDemo ServerDemo;
     private int DeviceServerManagerDemoPort=9095;
 
-    private List<DeviceServer> DeviceServerList;	
+    private List<DeviceServer> DeviceServerList;    
     public DeviceCommand mDeviceCommand;
     
     private static final String TAG = "[DeviceServerManager] ";
@@ -28,41 +28,41 @@ public class DeviceServerManager{
         iDeviceServerManager.mDConsole.setDeviceServerManager(iDeviceServerManager);
         iDeviceServerManager.mDConsole.start();
         iDeviceServerManager.ServerDemo.start();
-	    //int test=0;
-	    while(true){
-                synchronized(iDeviceServerManager.DeviceServerList) {
-		    Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
-                    while (it.hasNext()) {
-                    DeviceServer next = it.next();
-			if(next.getState() == Thread.State.NEW){
-			    System.out.println(TAG+"next start");
-			    next.start();
-			}
-                    }
-		}
-		try{
-	            Thread.sleep(1000);
-		}catch(Exception e){
-		    e.printStackTrace();
-		}
+        //int test=0;
+        while(true){
+            synchronized(iDeviceServerManager.DeviceServerList) {
+            Iterator<DeviceServer> it = iDeviceServerManager.DeviceServerList.iterator();
+            while (it.hasNext()) {
+                DeviceServer next = it.next();
+                if(next.getState() == Thread.State.NEW){
+                    System.out.println(TAG+"next start");
+                    next.start();
+                }
+            }
+        }
+        try{
+            Thread.sleep(1000);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
                 //TEST hole
                 //if(test ==0){
                 //    test=iDeviceServerManager.testhole(22,"hostA","hostB");            
                 //}
-	    }
+        }
     }
     public DeviceServerManager(){
-		DeviceServerList = Collections.synchronizedList(new ArrayList<DeviceServer>());
-		mDConsole = new DeviceConsole();
-		mDeviceCommand = new DeviceCommand(DeviceServerManagerDemoPort);
-                ServerDemo = new DeviceServerManagerDemo();
-		//DeviceServerManagerDemoSocket = new DatagramSocket(DeviceServerManagerDemoPort);
+        DeviceServerList = Collections.synchronizedList(new ArrayList<DeviceServer>());
+        mDConsole = new DeviceConsole();
+        mDeviceCommand = new DeviceCommand(DeviceServerManagerDemoPort);
+        ServerDemo = new DeviceServerManagerDemo();
+        //DeviceServerManagerDemoSocket = new DatagramSocket(DeviceServerManagerDemoPort);
     }
     public void ShowDevices(){
-		Iterator<DeviceServer> it = DeviceServerList.iterator();	
-		while (it.hasNext()) {
-			System.out.println(TAG+it.next());
-		}
+        Iterator<DeviceServer> it = DeviceServerList.iterator();    
+        while (it.hasNext()) {
+            System.out.println(TAG+it.next());
+        }
     }
     public int StartHoleClientNatbyName(int requestport, String sourcename, String destname){
         System.out.println(TAG+"========StartHoleClientNat=====");                                                                                
@@ -110,15 +110,15 @@ public class DeviceServerManager{
     }
     private void AddNewDevice(String name, String Id, String Ip, int Port){
         synchronized(DeviceServerList) {
-	Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                          
+        Iterator<DeviceServer> it = DeviceServerList.iterator();                                                                          
         while (it.hasNext()) {                                                                                                            
             DeviceServer next = it.next();
                 if(next.ClientId.equals(Id)){
                      System.out.println(TAG+"Id:"+Id+"has exist");
-				return;
+                return;
                 }
         }
-	}
+        }
         DeviceServerList.add(new DeviceServer(name, Id));
     }
     private DeviceServer findDeviceServerbyId(String Id){
@@ -145,7 +145,7 @@ public class DeviceServerManager{
     private void AskDeviceServerAddress(String name, String Id, String sourceip, int sourceport){
         DeviceServer next=null;
         synchronized(DeviceServerList) {
-	Iterator<DeviceServer> it = DeviceServerList.iterator();        
+        Iterator<DeviceServer> it = DeviceServerList.iterator();        
         while (it.hasNext()) {                                                                                                            
             next = it.next();
             if(next.ClientId.equals(Id)){
@@ -165,13 +165,13 @@ public class DeviceServerManager{
         DeviceServer next=null;        
         while (it.hasNext()) {                                                                                                            
             next = it.next();
-			if(next.ClientId.equals(destId)){
+            if(next.ClientId.equals(destId)){
                 break;
             }
-		}
+        }
         if(!it.hasNext() && !next.ClientId.equals(destId) && next != null){
             System.out.println(TAG+"Id:"+destId+"is not exist");
-			return;
+            return;
         }
         next.SendOtherClientAddress(ip, port);
     }*/
@@ -179,9 +179,13 @@ public class DeviceServerManager{
         String execommand=null;
         Iterator<String> it = s.params.iterator();
         String destname = it.next();
+        if(it.hasNext()){
+            execommand = it.next();
+        }
         while(it.hasNext()){
             execommand = execommand+" "+it.next();
         }
+        System.out.println(TAG+"destname:"+destname+" execommand:"+execommand);
         findDeviceServerbyname(destname).RemoteCall(execommand);
     }
     public void ExeCommand(DeviceCommand.CommandParams s){
@@ -209,5 +213,5 @@ public class DeviceServerManager{
                 ExeCommand(mDeviceCommand.RecvCommand());
            }
        }
-    }	
+    }    
 }

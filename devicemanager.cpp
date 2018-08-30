@@ -1,16 +1,20 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <unistd.h>
+#ifdef linux
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include <arpa/inet.h>
+#endif
+#ifdef _WIN32
+#include <winsock.h>
+#endif
 //#define UNIX_DOMAIN "/tmp/UNIX.domain"
 #define DATELEN 1024
- 
+
 int main(int argc, char *argv[])
 {
 	int GuiConnect_fd = -1;
@@ -20,29 +24,29 @@ int main(int argc, char *argv[])
 	int iSendLen = 0;
 	char GuiSendBuf[DATELEN] = {0};
 	char GuiRecvBuf[DATELEN] = {0};
- 
+
 	//static struct sockaddr_un ServAddr;
 	struct sockaddr_in ServAddr;
- 
+
 	//creat unix socket
 	//GuiConnect_fd = socket(PF_UNIX, SOCK_STREAM, 0);
 	GuiConnect_fd = socket(AF_INET, SOCK_STREAM, 0);
 	printf("== GuiConnect_fd = %d\n", GuiConnect_fd);
- 
+
 	if (GuiConnect_fd < 0)
 	{
 		perror("cannot create communication socket");
 		return 1;
 	}
- 
+
 	//ServAddr.sun_family = AF_UNIX;
 	//strncpy(ServAddr.sun_path, UNIX_DOMAIN, sizeof(ServAddr.sun_path) - 1);
- 
+
 	memset(&ServAddr, 0, sizeof(ServAddr));
 	ServAddr.sin_family = AF_INET;
 	ServAddr.sin_port = htons(device_port);
 	ServAddr.sin_addr.s_addr = inet_addr("127.0.0.1");
- 
+
 	//connect server
 	iRet = connect(GuiConnect_fd, (struct sockaddr*)&ServAddr, sizeof(ServAddr));
 	if(-1 == iRet)

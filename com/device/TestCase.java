@@ -17,21 +17,21 @@ public class TestCase{
     private static final String THISISCLIENT_COMMAND = "ThisIsClient";
     private static final String SENDNEWADDRESS_COMMAND = "SendNewAddress";
     public static void main(String[] args){
-	//=========test DeviceCommand=================
+    //=========test DeviceCommand=================
         //DeviceCommand command = new DeviceCommand();
         //command.SendCommand("showdevice namea nameb","10.180.89.205",9092,9099);
         //command.SendCommand("showdevice namea nameb","192.168.1.201",9092);
        //DeviceCommand.CommandParams s = command.RecvCommand(0);
-	//char[] comm=new char[32];
-	//List<String> params = new ArrayList<String>();
-	//int paramnum = command.AnalysisCommand(s,comm,params);
-	//System.out.println(comm);
-	//System.out.println("command:"+s.command+" paramnum:"+s.paramsnum+" parama1:"+s.params.get(0));
-	//System.out.println("sourceip:"+s.sourceip+" sourceport:"+s.sourceport);
-	//System.out.println("destip:"+s.destip+" destport:"+s.destport);
+    //char[] comm=new char[32];
+    //List<String> params = new ArrayList<String>();
+    //int paramnum = command.AnalysisCommand(s,comm,params);
+    //System.out.println(comm);
+    //System.out.println("command:"+s.command+" paramnum:"+s.paramsnum+" parama1:"+s.params.get(0));
+    //System.out.println("sourceip:"+s.sourceip+" sourceport:"+s.sourceport);
+    //System.out.println("destip:"+s.destip+" destport:"+s.destport);
         //System.out.println("paramnum:"+paramnum+" parama1:"+params.get(0));
-	//================test get SN===============
-	 /* try {  
+    //================test get SN===============
+     /* try {  
         long start = System.currentTimeMillis();  
         Process process = Runtime.getRuntime().exec(  
         new String[] { "wmic", "cpu", "get", "ProcessorId" });  
@@ -51,7 +51,7 @@ public class TestCase{
         //System.out.println("test:"+new String(test)+" end");
         //==========================/
         Map<String,String> map = System.getenv();  
-//	System.out.println(new String(System.getenv()));
+//    System.out.println(new String(System.getenv()));
 Map m = System.getenv();
 
               for ( Iterator it = m.keySet().iterator(); it.hasNext(); )
@@ -100,10 +100,10 @@ Map m = System.getenv();
         }
 
         try{
-		System.out.println(getMACAddress());
-	}catch(Exception e){
+        System.out.println(getMACAddress());
+    }catch(Exception e){
             e.printStackTrace();
-	}
+    }
     //=========================test DeviceSerManager=========================
    // DeviceCommand command = new DeviceCommand(0);
     //command.SendNoReply(CREATE_COMMAND+" machineA LC2343410","10.180.89.205",DeviceServerManagerDemoPort);

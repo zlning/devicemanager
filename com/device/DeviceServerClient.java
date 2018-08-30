@@ -16,7 +16,7 @@ public class DeviceServerClient extends Thread{
     private String ServertIp;
     private int ServerPort;
     private int DeviceServerManagerDemoPort=9095;
-    private String DeviceServerManagerIp="10.180.89.205";
+    private String DeviceServerManagerIp="192.168.1.201";//"10.180.89.205";
     
     private static final String THISISSERVER_COMMAND = "ThisIsServer";
     private static final String WHEREIS_COMMAND = "AskDeviceServerAddress";
@@ -30,7 +30,7 @@ public class DeviceServerClient extends Thread{
     private static final String RETURN_COMMAND = "ReturnResult";
     
     public DeviceServerClient(String name){
-	ClientName = name;
+        ClientName = name;
         mDeviceCommand = new DeviceCommand(0);
         CreateNewDeviceServer();
         ClientPort = mDeviceCommand.mPort;
@@ -38,21 +38,21 @@ public class DeviceServerClient extends Thread{
     public static void main(String[] args){
         DeviceServerClient iDeviceServerClient=null;
         if(args.length>=1){
-	    iDeviceServerClient = new DeviceServerClient(args[0]);
-	}else{
-	    iDeviceServerClient = new DeviceServerClient(null);
-	}
+            iDeviceServerClient = new DeviceServerClient(args[0]);
+        }else{
+            iDeviceServerClient = new DeviceServerClient(null);
+        }
         iDeviceServerClient.start();
-	while(iDeviceServerClient.ServertIp == null ||iDeviceServerClient.ServerPort==0){
+        while(iDeviceServerClient.ServertIp == null ||iDeviceServerClient.ServerPort==0){
             iDeviceServerClient.AskDeviceServerAddress();
-	    try{                                                                                                                                  
+        try{                                                                                                                                  
                 Thread.sleep(1*1000);                                                                                                            
             }catch(Exception e){                                                                                                                  
                 e.printStackTrace();                                                                                                              
             } 
         }
-	iDeviceServerClient.mDeviceCommand.SendNoReply("ShowDevices",iDeviceServerClient.DeviceServerManagerIp,iDeviceServerClient.DeviceServerManagerDemoPort);
-	while(true){
+        iDeviceServerClient.mDeviceCommand.SendNoReply("ShowDevices",iDeviceServerClient.DeviceServerManagerIp,iDeviceServerClient.DeviceServerManagerDemoPort);
+        while(true){
             //if(ServertIp && )
             try{
                 Thread.sleep(20*1000);
@@ -64,7 +64,7 @@ public class DeviceServerClient extends Thread{
     }
     private void CreateNewDeviceServer(){
        // mDeviceCommand.SendNoReply(CREATE_COMMAND+" "+getHostName()+" "+getHostSN(),DeviceServerManagerIp,DeviceServerManagerDemoPort);
-   	 mDeviceCommand.SendNoReply(CREATE_COMMAND+" "+getHostName()+" "+getHostSN(),DeviceServerManagerIp,DeviceServerManagerDemoPort); 
+        mDeviceCommand.SendNoReply(CREATE_COMMAND+" "+getHostName()+" "+getHostSN(),DeviceServerManagerIp,DeviceServerManagerDemoPort); 
     }
     private void AskDeviceServerAddress(){
         mDeviceCommand.SendNoReply(WHEREIS_COMMAND+" "+getHostName()+" "+getHostSN(),DeviceServerManagerIp,DeviceServerManagerDemoPort);
@@ -81,10 +81,10 @@ public class DeviceServerClient extends Thread{
         sendClientAddress();
     }
     private String getHostSN(){
-	if(ClientId != null){
-		return ClientId;
-	}
-	int length = 10;
+        if(ClientId != null){
+            return ClientId;
+        }
+        int length = 10;
         String str="zxcvbnmlkjhgfdsaqwertyuiopQWERTYUIOPASDFGHJKLZXCVBNM1234567890";
         Random random=new Random();  
         StringBuffer sb=new StringBuffer();
@@ -92,19 +92,19 @@ public class DeviceServerClient extends Thread{
           int number=random.nextInt(62);
           sb.append(str.charAt(number));
         }
-	ClientId = sb.toString();
+        ClientId = sb.toString();
         return ClientId;
     }
     private String getHostName(){
         Map<String,String> map = System.getenv();  
         if(ClientName != null)
-		return ClientName;
-	else if(map.get("USERNAME")!=null)
-		return map.get("USERNAME");
-	else if(map.get("USER")!=null)
-		return map.get("USER");
-	else
-		return "MachineNoName";//map.get("USERNAME");
+            return ClientName;
+        else if(map.get("USERNAME")!=null)
+            return map.get("USERNAME");
+        else if(map.get("USER")!=null)
+            return map.get("USER");
+        else
+            return "MachineNoName";//map.get("USERNAME");
     }
     private void GetNewClientAddress(int requestport, String destip, int destport){
          mHoleDeviceCommand = new DeviceCommand(requestport);
@@ -122,6 +122,9 @@ public class DeviceServerClient extends Thread{
     private void ExecSendback(DeviceCommand.CommandParams s){
         String execommand=null;
         Iterator<String> it = s.params.iterator();
+        if(it.hasNext()){
+            execommand = it.next();
+        }
         while(it.hasNext()){
             execommand = execommand+" "+it.next();
         }
@@ -129,9 +132,9 @@ public class DeviceServerClient extends Thread{
     }
     private void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);
-	if(s.command.equals(THISISSERVER_COMMAND) && s.paramsnum == 1){
+        if(s.command.equals(THISISSERVER_COMMAND) && s.paramsnum == 1){
             setServerAddress(s.sourceip,Integer.parseInt(s.params.get(0)));
-	}else if(s.command.equals(GETADDRESS_COMMAND) && s.paramsnum == 3){
+        }else if(s.command.equals(GETADDRESS_COMMAND) && s.paramsnum == 3){
             GetNewClientAddress(Integer.parseInt(s.params.get(0)),s.params.get(1),Integer.parseInt(s.params.get(2)));
         }else if (s.command.equals(SENDOTHERADDRESS_COMMAND) && s.paramsnum == 2){
             mDeviceCommand.SendNoReply(ANEWADDRESS_COMMAND, s.params.get(0), Integer.parseInt(s.params.get(1)));
@@ -152,8 +155,8 @@ public class DeviceServerClient extends Thread{
     }
     @Override
     public void run(){
-    while(true){
-			ExeCommand(mDeviceCommand.RecvCommand());
-    }
+        while(true){
+            ExeCommand(mDeviceCommand.RecvCommand());
+        }
     }
 }
