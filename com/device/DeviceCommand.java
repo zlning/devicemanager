@@ -168,6 +168,12 @@ public class DeviceCommand{
         return null;
         //System.exit(0);
     }
+    public String PackageParams(String params){
+        return AES.CCBase64Encoder(params);
+    }
+    public String RecoveryParams(String params){
+        return AES.CCBase64Decoder(params);
+    }
     public void release(){
         mSocket.close();
     }

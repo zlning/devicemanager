@@ -90,7 +90,24 @@ public class AES {
         }
         return null;
     }
-
+    public static String CCBase64Encoder(String params)
+    {
+        String str=null;
+        try{
+            str=encoder.encodeToString(params.getBytes("utf-8"));
+        }catch(Exception e){e.printStackTrace();}        
+        return str;
+    }
+    public static String CCBase64Decoder(String params)
+    {   
+        String str=null;
+        try{
+            byte[] bytes=Base64.getDecoder().decode(params);
+            str = new String(bytes,"utf-8");
+        }catch(Exception e){e.printStackTrace();}
+        //return new String(bytes,"utf-8");
+        return str;
+    }
     /*
     public static void main(String[] args) throws Exception {
         String cKey = "1234567890123456";

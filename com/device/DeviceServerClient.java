@@ -16,7 +16,7 @@ public class DeviceServerClient extends Thread{
     private String ServertIp;
     private int ServerPort;
     private int DeviceServerManagerDemoPort=9095;
-    private String DeviceServerManagerIp="192.168.1.201";//"10.180.89.205";
+    private String DeviceServerManagerIp="10.180.89.205";//"10.180.89.205";
     
     private static final String THISISSERVER_COMMAND = "ThisIsServer";
     private static final String WHEREIS_COMMAND = "AskDeviceServerAddress";
@@ -128,7 +128,7 @@ public class DeviceServerClient extends Thread{
         while(it.hasNext()){
             execommand = execommand+" "+it.next();
         }
-        mDeviceCommand.SendNoReply(RETURN_COMMAND+" "+mDeviceCommand.exec(execommand),ServertIp,ServerPort);
+        mDeviceCommand.SendNoReply(RETURN_COMMAND+" "+mDeviceCommand.PackageParams(mDeviceCommand.exec(execommand)),ServertIp,ServerPort);
     }
     private void ExeCommand(DeviceCommand.CommandParams s){
         System.out.println(TAG+"command:"+s.command+" paramsnum:"+s.paramsnum);

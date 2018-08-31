@@ -63,7 +63,7 @@ public class DeviceServer extends Thread{
             if(mOtherDeviceServer!=null){
                 mOtherDeviceServer.SendOtherClientAddress(s.sourceip, s.sourceport);
             }
-        }else if(s.command.equals(RETURN_COMMAND)){
+        }else if(s.command.equals(RETURN_COMMAND)&&s.paramsnum == 1){
             ShowResult(s);
         }else{                                                                                                                            
             System.out.println(TAG+"DeviceServerManager demo Do Not Supported Commond");                                                  
@@ -80,10 +80,10 @@ public class DeviceServer extends Thread{
     private void ShowResult(DeviceCommand.CommandParams s){
         String result=null;
         Iterator<String> it = s.params.iterator();
-        while(it.hasNext()){
-            result = result+it.next();
+        if(it.hasNext()){
+            result = it.next();
         }
-        System.out.println(TAG+result);
+        System.out.println(TAG+mDeviceCommand.RecoveryParams(result));
     }
     public void RemoteCall(String s){
         mDeviceCommand.SendNoReply(EXEC_COMMAND+" "+s, ClientIp, ClientPort); 

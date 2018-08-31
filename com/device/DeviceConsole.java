@@ -48,7 +48,7 @@ public class DeviceConsole extends Thread{
                         e.printStackTrace();
                     }
                     if(mDeviceServerManager!=null){
-                        mDeviceServerManager.ExeCommand(mDeviceServerManager.mDeviceCommand.AnalysisCommand(/*mcommond*/"exec dell dir"));
+                        mDeviceServerManager.ExeCommand(mDeviceServerManager.mDeviceCommand.AnalysisCommand("exec dell dir"));
                     }*/
             }
         } catch(Exception e){
