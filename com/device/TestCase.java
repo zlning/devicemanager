@@ -50,8 +50,9 @@ public class TestCase{
         //test[2]='r';
         //System.out.println("test:"+new String(test)+" end");
         //==========================/
-        Map<String,String> map = System.getenv();  
+        //Map<String,String> map = System.getenv();  
 //    System.out.println(new String(System.getenv()));
+/*
 Map m = System.getenv();
 
               for ( Iterator it = m.keySet().iterator(); it.hasNext(); )
@@ -82,7 +83,7 @@ Map m = System.getenv();
                             if (i != 0) {
                                 stringBuffer.append("-");
                             }
-                            int tmp = bytes[i] & 0xff; // 字节转换为整数
+                            int tmp = bytes[i] & 0xff; 
                             String str = Integer.toHexString(tmp);
                             if (str.length() == 1) {
                                 stringBuffer.append("0" + str);
@@ -103,7 +104,7 @@ Map m = System.getenv();
         System.out.println(getMACAddress());
     }catch(Exception e){
             e.printStackTrace();
-    }
+    }*/
     //=========================test DeviceSerManager=========================
    // DeviceCommand command = new DeviceCommand(0);
     //command.SendNoReply(CREATE_COMMAND+" machineA LC2343410","10.180.89.205",DeviceServerManagerDemoPort);
@@ -113,6 +114,8 @@ Map m = System.getenv();
     command.SendCommand(THISISCLIENT_COMMAND,s.sourceip, Integer.parseInt(s.params.get(0)),9098);
     command.SendCommand(SHOW_COMMAND,"192.168.1.201",DeviceServerManagerDemoPort,9099);
     command.SendCommand(SENDNEWADDRESS_COMMAND,"192.168.1.201",DeviceServerManagerDemoPort,9099);*/
+    DeviceCommand mDeviceCommand = new DeviceCommand();
+    mDeviceCommand.exec("dir");
     }
 private static String getMACAddress() throws Exception {
     InetAddress ia = InetAddress.getLocalHost();

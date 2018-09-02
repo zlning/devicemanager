@@ -9,11 +9,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
-/**
- *
- * @author Administrator
- *
- */
+
 public class AES {
     private final static Base64.Decoder decoder = Base64.getDecoder();
     private final static Base64.Encoder encoder = Base64.getEncoder();

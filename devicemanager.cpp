@@ -27,7 +27,17 @@ int main(int argc, char *argv[])
 
 	//static struct sockaddr_un ServAddr;
 	struct sockaddr_in ServAddr;
-
+	#ifdef _WIN32
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    int err;
+    wVersionRequested = MAKEWORD(1, 1);
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if(err != 0)
+    {
+        perror("WSAStartup error");
+    }
+    #endif
 	//creat unix socket
 	//GuiConnect_fd = socket(PF_UNIX, SOCK_STREAM, 0);
 	GuiConnect_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -65,13 +75,18 @@ int main(int argc, char *argv[])
 	memset(GuiSendBuf, 0, DATELEN);
 	for (int i =1; i<argc; i++){
 		printf("argc=%d param %s\n",argc,argv[i]);
+		if( DATELEN-3 < strlen(argv[i])+strlen(GuiSendBuf) ){
+            printf("params is too long\n");
+            return 0;
+		}
 		strncpy(GuiSendBuf+strlen(GuiSendBuf), argv[i], strlen(argv[i]));
 		strncpy(GuiSendBuf+strlen(GuiSendBuf), " ", 1);
 	}
-	GuiSendBuf[strlen(GuiSendBuf)-1] = '\0';
+	GuiSendBuf[strlen(GuiSendBuf)-1] = '\n';
+	GuiSendBuf[strlen(GuiSendBuf)] = '\0';
 	//iSendLen = write(GuiConnect_fd, GuiSendBuf, sizeof(GuiSendBuf));
 	iSendLen = send(GuiConnect_fd, GuiSendBuf, strlen(GuiSendBuf), 0);
-	printf("wrint Date Len to server (%d) : %s\n", iSendLen, GuiSendBuf);
+	printf("send Date Len to server (%d) : %s\n", iSendLen, GuiSendBuf);
 	close(GuiConnect_fd);
 	return 0;
 }

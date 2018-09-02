@@ -34,11 +34,13 @@ public class DeviceConsole extends Thread{
             while(true){
                 System.out.println("===========wait command=========");
                 ServerSock = server.accept();
+                System.out.println("===========accept command=========");
                 br = new BufferedReader(new InputStreamReader(ServerSock.getInputStream()));
                 while ((mcommond = br.readLine()) != null) {
                     System.out.println("===========command is comming========="+mcommond);
                     if(mDeviceServerManager!=null){
                         mDeviceServerManager.ExeCommand(mDeviceServerManager.mDeviceCommand.AnalysisCommand(mcommond));
+                        break;
                     }
                 }
                     //==============test======================
@@ -54,7 +56,7 @@ public class DeviceConsole extends Thread{
         } catch(Exception e){
         }        
     }  
-    private void execommond(String s){
+    /*private void execommond(String s){
         StringTokenizer st = new StringTokenizer(s);
         String commond = st.nextToken();
         if(st.hasMoreElements() && commond.equals("showdevices")){
@@ -77,5 +79,5 @@ public class DeviceConsole extends Thread{
         }else{
             System.out.println("DeviceServerManager Do Not Supported Commond");
         }   
-    }
+    }*/
 }

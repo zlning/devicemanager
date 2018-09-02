@@ -10,6 +10,9 @@ import java.util.Scanner;
 import java.io.File;
 import java.io.IOException;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 public class DeviceCommand{
     //public List<String> mCommandParams;
     //public String mCommand
@@ -136,8 +139,28 @@ public class DeviceCommand{
         try{
             ProcessBuilder builder = new ProcessBuilder(commands);
             Process start = builder.start();
-            new Scanner(start.getInputStream());
-            new Scanner(start.getErrorStream());
+            StringBuilder sb = new StringBuilder();
+            String s=null;
+            /*BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(start.getInputStream())); 
+            while((s=bufferedReader.readLine()) != null) {
+                sb.append(s);
+                System.out.println(s);
+                sb.append("\n \r");
+  
+            }
+            System.out.println(sb.toString());*/
+            /*        try{
+            Thread.sleep(1000);
+            }catch(Exception e){
+            e.printStackTrace();
+            }*/
+            try{
+                start.waitFor();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+            //new Scanner(start.getInputStream());
+            //new Scanner(start.getErrorStream());
             byte[] bytes = new byte[0];
             bytes = new byte[start.getInputStream().available()];
             start.getInputStream().read(bytes);
